@@ -3,11 +3,12 @@ import { FiArrowLeft, FiArrowRight, FiCheck, FiMessageCircle, FiSend } from 'rea
 import { Icon, Reveal } from '../lib/fx';
 import { sendLead, whatsappLink } from '../lib/content';
 import { supabase } from '../lib/supabase';
+import Chat, { ChatSession, loadSession, newToken, saveSession } from './Chat';
 
 const BUSINESS = ['Comercio o tienda', 'Restaurante o comida', 'Salud o farmacia', 'Servicios profesionales', 'Distribución o mayorista', 'Otro'];
 const BUDGET = ['Menos de $300', '$300 a $1.000', '$1.000 a $3.000', 'Más de $3.000', 'Aún no lo sé'];
 const TIMELINE = ['Lo antes posible', 'En un mes', 'En dos o tres meses', 'Solo estoy explorando'];
-const STEPS = ['Qué necesitas', 'Tu negocio', 'Tus datos'];
+const STEPS = ['Qué necesitas', 'Tu negocio', 'Hablemos'];
 
 function Chips({ options, value, onChange, label }: any) {
   return (
@@ -28,6 +29,7 @@ export default function Configurator({ services, selected, setSelected, settings
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({ business_type: '', budget: '', timeline: '', name: '', company: '', phone: '', email: '', message: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle');
+  const [session, setSession] = useState<ChatSession | null>(loadSession);
   const [error, setError] = useState('');
 
   const set = (k: string) => (v: any) => setForm((f) => ({ ...f, [k]: v?.target ? v.target.value : v }));
@@ -35,17 +37,16 @@ export default function Configurator({ services, selected, setSelected, settings
   const chosen = services.filter((s: any) => selected.includes(s.id));
   const titles = chosen.map((s: any) => s.title);
 
-  const summaryText = () =>
+  const requestText = () =>
     [
-      `Hola, soy ${form.name}${form.company ? ` de ${form.company}` : ''}.`,
       `Me interesa: ${titles.join(', ')}.`,
       form.business_type && `Negocio: ${form.business_type}.`,
       form.budget && `Presupuesto: ${form.budget}.`,
       form.timeline && `Plazo: ${form.timeline}.`,
-      form.message,
     ]
       .filter(Boolean)
       .join('\n');
+  const summaryText = () => `Hola, soy ${form.name}${form.company ? ` de ${form.company}` : ''}.\n${requestText()}`;
 
   const wa = whatsappLink(settings.whatsapp, summaryText());
 
@@ -59,17 +60,37 @@ export default function Configurator({ services, selected, setSelected, settings
     e.preventDefault();
     setError('');
     if (!form.name.trim()) return setError('Escribe tu nombre.');
-    if (!form.phone.trim() && !form.email.trim()) return setError('Déjanos un WhatsApp o un correo para responderte.');
     setState('sending');
+    const token = newToken();
+    let created = false;
     try {
       await sendLead({
         name: form.name.trim(), company: form.company.trim() || null, phone: form.phone.trim() || null,
-        email: form.email.trim() || null, message: form.message.trim() || null, services: titles,
+        email: form.email.trim() || null, services: titles, chat_token: token,
         business_type: form.business_type || null, budget: form.budget || null, timeline: form.timeline || null, source: 'web',
       });
-      setState('done');
+      created = true;
+      // La solicitud entra como primer mensaje de la conversación.
+      const first = await supabase.rpc('chat_send', { p_token: token, p_body: requestText() });
+      if (first.error) throw first.error;
+      const next = { token, name: form.name.trim() };
+      saveSession(next);
+      setSession(next);
+      setState('idle');
     } catch (err) {
       console.warn(err);
+      if (created) return setState('done'); // la solicitud llegó, pero el chat no abrió
+      try {
+        // Si el chat aún no está activado en la base de datos, se guarda como solicitud normal.
+        await sendLead({
+          name: form.name.trim(), company: form.company.trim() || null, phone: form.phone.trim() || null,
+          email: form.email.trim() || null, services: titles, business_type: form.business_type || null,
+          budget: form.budget || null, timeline: form.timeline || null, source: 'web',
+        });
+        return setState('done');
+      } catch (err2) {
+        console.warn(err2);
+      }
       if (wa) {
         // Sin conexión a la base de datos: la solicitud sale por WhatsApp.
         setState('done');
@@ -90,7 +111,7 @@ export default function Configurator({ services, selected, setSelected, settings
       <div className="wrap config__grid">
         <Reveal className="config__intro">
           <h2 className="h2">Arma tu proyecto en un minuto</h2>
-          <p className="lead">Marca lo que necesitas y te respondemos con una propuesta a tu medida. Sin llamadas de venta ni compromiso.</p>
+          <p className="lead">Marca lo que necesitas y abre un chat con nuestro equipo. Te respondemos ahí mismo, sin llamadas de venta ni compromiso.</p>
           <div className="config__build" aria-live="polite">
             <p className="config__build-title">{chosen.length ? 'Tu proyecto lleva' : 'Tu proyecto está vacío'}</p>
             <div className="config__pieces">
@@ -108,7 +129,17 @@ export default function Configurator({ services, selected, setSelected, settings
         </Reveal>
 
         <Reveal className="config__panel" delay={120}>
-          {state === 'done' ? (
+          {session && supabase ? (
+            <Chat
+              session={session}
+              onReset={() => {
+                saveSession(null);
+                setSession(null);
+                setSelected([]);
+                setStep(0);
+              }}
+            />
+          ) : state === 'done' ? (
             <div className="config__done">
               <span className="config__check"><FiCheck /></span>
               <h3 className="h3">Solicitud enviada</h3>
@@ -158,7 +189,7 @@ export default function Configurator({ services, selected, setSelected, settings
                     <label className="field"><span>Empresa o negocio</span><input value={form.company} onChange={set('company')} autoComplete="organization" /></label>
                     <label className="field"><span>WhatsApp</span><input value={form.phone} onChange={set('phone')} type="tel" autoComplete="tel" placeholder="+58 412 000 0000" /></label>
                     <label className="field"><span>Correo</span><input value={form.email} onChange={set('email')} type="email" autoComplete="email" /></label>
-                    <label className="field field--full"><span>Cuéntanos más (opcional)</span><textarea rows={3} value={form.message} onChange={set('message')} placeholder="Qué problema quieres resolver, qué usas hoy, ideas que tengas…" /></label>
+                    <p className="fields__note field--full">El WhatsApp o el correo son opcionales: sirven para escribirte si cierras la página antes de que respondamos.</p>
                   </div>
                 )}
               </div>
@@ -175,7 +206,7 @@ export default function Configurator({ services, selected, setSelected, settings
                   <button type="button" className="btn btn--primary" onClick={next}>Continuar <FiArrowRight /></button>
                 ) : (
                   <button type="submit" className="btn btn--primary" disabled={state === 'sending'}>
-                    <FiSend /> {state === 'sending' ? 'Enviando…' : 'Enviar solicitud'}
+                    <FiMessageCircle /> {state === 'sending' ? 'Abriendo el chat…' : 'Iniciar conversación'}
                   </button>
                 )}
               </div>

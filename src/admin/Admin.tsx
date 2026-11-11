@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
   FiAward, FiBriefcase, FiCheck, FiDollarSign, FiExternalLink, FiGrid, FiHash, FiHelpCircle, FiHome, FiImage,
-  FiInbox, FiLogOut, FiMenu, FiSettings, FiStar, FiUsers, FiX,
+  FiInbox, FiLogOut, FiMenu, FiMessageCircle, FiSettings, FiStar, FiUsers, FiX,
 } from 'react-icons/fi';
 import { supabase } from '../lib/supabase';
 import { Link, useRouter } from '../lib/router';
 import { GearMark } from '../site/Gears';
 import { defaultSettings } from '../lib/content';
 import Crud, { FieldInput, clean } from './Crud';
+import Conversations from './Conversations';
 import Dashboard from './Dashboard';
 import { RESOURCES, SETTINGS_FIELDS } from './resources';
 import '../styles/admin.css';
@@ -15,6 +16,7 @@ import '../styles/admin.css';
 const MENU = [
   { group: 'Negocio', items: [
     { to: '/admin', label: 'Resumen', icon: FiHome },
+    { to: '/admin/conversaciones', label: 'Conversaciones', icon: FiMessageCircle },
     { to: '/admin/solicitudes', label: 'Solicitudes', icon: FiInbox },
     { to: '/admin/clientes', label: 'Clientes', icon: FiUsers },
     { to: '/admin/proyectos', label: 'Proyectos', icon: FiBriefcase },
@@ -138,6 +140,23 @@ export default function Admin() {
 
   useEffect(() => setMenu(false), [path]);
 
+  // Mensajes de clientes sin leer, para el aviso del menú.
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    if (!allowed) return;
+    const check = async () => {
+      const { data } = await supabase.from('leads').select('*');
+      setUnread((data || []).reduce((a: number, l: any) => a + (l.unread_admin || 0), 0));
+    };
+    check();
+    const t = setInterval(() => !document.hidden && check(), 8000);
+    window.addEventListener('engranet:chat-read', check);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener('engranet:chat-read', check);
+    };
+  }, [allowed, path]);
+
   if (!supabase) {
     return (
       <Shell>
@@ -175,6 +194,7 @@ export default function Admin() {
                 return (
                   <Link key={it.to} to={it.to} className={on ? 'is-on' : ''} aria-current={on ? 'page' : undefined}>
                     <it.icon /> {it.label}
+                    {it.to === '/admin/conversaciones' && unread > 0 && <b className="side__badge">{unread}</b>}
                   </Link>
                 );
               })}
@@ -189,7 +209,7 @@ export default function Admin() {
       </aside>
       <button className="side__toggle" onClick={() => setMenu(!menu)} aria-label={menu ? 'Cerrar menú' : 'Abrir menú'}>{menu ? <FiX /> : <FiMenu />}</button>
       <main className="admin__main">
-        {slug === '' ? <Dashboard /> : slug === 'ajustes' ? <Settings /> : resource ? <Crud resource={resource} key={slug} /> : (
+        {slug === '' ? <Dashboard /> : slug === 'conversaciones' ? <Conversations /> : slug === 'ajustes' ? <Settings /> : resource ? <Crud resource={resource} key={slug} /> : (
           <div className="page"><h1>Página no encontrada</h1><p className="muted"><Link to="/admin">Volver al resumen</Link></p></div>
         )}
       </main>
