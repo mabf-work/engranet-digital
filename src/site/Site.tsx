@@ -91,7 +91,7 @@ function Hero({ settings }: any) {
           <p className="hero__sub">{settings.hero_subtitle}</p>
           <div className="hero__cta">
             <Magnetic className="btn btn--primary btn--lg" href="#cotizar">Armar mi proyecto <FiArrowRight /></Magnetic>
-            <a className="btn btn--ghost btn--lg" href="#proyectos">Ver proyectos</a>
+            <a className="btn btn--red btn--lg" href="#proyectos">Ver proyectos</a>
           </div>
         </div>
         <div className="hero__visual">

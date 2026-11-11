@@ -226,7 +226,7 @@ export function NetCanvas() {
           const b = nodes[j];
           const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d < LINK) {
-            ctx.strokeStyle = `rgba(74, 58, 255, ${0.16 * (1 - d / LINK)})`;
+            ctx.strokeStyle = `rgba(24, 119, 210, ${0.16 * (1 - d / LINK)})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
@@ -236,14 +236,14 @@ export function NetCanvas() {
         }
         const dm = Math.hypot(a.x - mouse.x, a.y - mouse.y);
         if (dm < 190) {
-          ctx.strokeStyle = `rgba(0, 194, 209, ${0.5 * (1 - dm / 190)})`;
+          ctx.strokeStyle = `rgba(255, 138, 138, ${0.5 * (1 - dm / 190)})`;
           ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(mouse.x, mouse.y);
           ctx.stroke();
         }
-        ctx.fillStyle = dm < 190 ? 'rgba(0, 194, 209, .9)' : 'rgba(74, 58, 255, .38)';
+        ctx.fillStyle = dm < 190 ? 'rgba(255, 138, 138, .9)' : 'rgba(24, 119, 210, .38)';
         ctx.beginPath();
         ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
         ctx.fill();
