@@ -165,28 +165,34 @@ export default function Gears() {
       ctx.restore();
 
       // nombre grabado en la cara, como un marcado láser: gira con la pieza
-      const text = `${g.label} • ${g.label} • `.toUpperCase();
-      const tr = g.R * 0.64;
-      const size = Math.min(g.R * 0.2, (Math.PI * 2 * tr) / (text.length * 0.86));
+      const word = Array.from(g.label.toUpperCase());
+      const tr = g.R * 0.66;
+      const size = Math.max(9, g.R * 0.105);
       ctx.font = `600 ${size.toFixed(1)}px Unbounded, 'Trebuchet MS', sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      const widths = Array.from(text).map((ch) => ctx.measureText(ch).width + size * 0.08);
-      const total = widths.reduce((a, b) => a + b, 0);
-      let at = rot;
-      Array.from(text).forEach((ch, i) => {
-        const step = (widths[i] / total) * Math.PI * 2;
-        const th = at + step / 2;
-        at += step;
+      const widths = word.map((ch) => ctx.measureText(ch).width + size * 0.22);
+      const span = widths.reduce((a, b) => a + b, 0) / tr; // ángulo que ocupa la palabra
+      const etch = (ch: string, th: number) => {
         ctx.save();
         ctx.rotate(th);
         ctx.translate(0, -tr);
         // labio inferior iluminado (la luz no gira) y luego el surco oscuro
         ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        ctx.fillText(ch, Math.sin(th) * 1.3, Math.cos(th) * 1.3);
+        ctx.fillText(ch, Math.sin(th) * 1, Math.cos(th) * 1);
         ctx.fillStyle = g.metal.etch;
         ctx.fillText(ch, 0, 0);
         ctx.restore();
+      };
+      // la palabra va dos veces, en lados opuestos, con un punto entre ambas
+      [0, Math.PI].forEach((side) => {
+        let at = rot + side - span / 2;
+        word.forEach((ch, i) => {
+          const step = widths[i] / tr;
+          etch(ch, at + step / 2);
+          at += step;
+        });
+        etch('•', rot + side + Math.PI / 2);
       });
 
       // cubo central, eje y chaveta
