@@ -125,6 +125,40 @@ textarea.input { resize: vertical; }
 .image-input__side { flex: 1; display: grid; gap: 8px; justify-items: start; }
 .toast { position: fixed; left: 50%; bottom: 26px; translate: -50% 0; z-index: 90; display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 12px; background: var(--ink); color: #fff; font-weight: 500; box-shadow: var(--shadow-l); animation: pop 0.25s var(--ease); }
 
+/* Conversaciones */
+.side__badge { margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--red); color: #fff; font-size: 0.76rem; font-weight: 700; text-align: center; }
+.inbox { display: grid; grid-template-columns: 320px minmax(0, 1fr); height: calc(100vh - 190px); min-height: 440px; background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-s); overflow: hidden; }
+.inbox__list { border-right: 1px solid var(--line); overflow-y: auto; }
+.inbox__item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(15, 36, 64, 0.06); transition: background 0.15s; }
+.inbox__item:hover { background: #f7fbff; }
+.inbox__item.is-on { background: #e8f4ff; }
+.inbox__avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--grad); color: #fff; font-weight: 700; flex: none; }
+.inbox__text { flex: 1; min-width: 0; display: grid; }
+.inbox__text strong, .inbox__text small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inbox__text small { color: var(--ink-3); }
+.inbox__meta { display: grid; justify-items: end; gap: 4px; flex: none; }
+.inbox__meta time { font-size: 0.76rem; color: var(--ink-3); }
+.inbox__meta b { min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--red); color: #fff; font-size: 0.74rem; text-align: center; }
+.inbox__empty { padding: 28px 18px; color: var(--ink-2); }
+.inbox__thread { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.inbox__blank { flex: 1; display: grid; place-content: center; justify-items: center; gap: 10px; color: var(--ink-3); font-size: 1rem; }
+.inbox__blank svg { font-size: 2.4rem; }
+.thread__head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.thread__who { flex: 1; min-width: 0; display: grid; }
+.thread__who small { color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread__back { display: none; font-weight: 600; color: var(--primary); }
+.thread__tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 18px; border-bottom: 1px solid rgba(15, 36, 64, 0.06); }
+.thread__tags span { padding: 3px 10px; border-radius: 8px; background: #e8f4ff; color: var(--primary-d); font-size: 0.8rem; font-weight: 600; }
+.thread__body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 18px; background: #f7fafe; }
+.msg { max-width: 70%; padding: 9px 13px; border-radius: 16px; animation: pop 0.25s var(--ease); }
+.msg p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg time { display: block; margin-top: 2px; font-size: 0.7rem; opacity: 0.6; }
+.msg--client { align-self: flex-start; background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+.msg--agent { align-self: flex-end; background: var(--blue-l); color: var(--blue-ink); border-bottom-right-radius: 5px; }
+.msg--agent time { text-align: right; }
+.thread__form { display: flex; align-items: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--line); }
+.thread__form textarea { flex: 1; min-height: 42px; max-height: 140px; resize: none; }
+
 /* Resumen */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .kpi { display: grid; gap: 4px; padding: 18px; border-radius: 18px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow-s); transition: transform 0.2s var(--ease), box-shadow 0.2s; }
@@ -162,6 +196,10 @@ textarea.input { resize: vertical; }
   .admin.is-menu .side { transform: none; }
   .side__toggle { display: grid; place-items: center; position: fixed; right: 16px; bottom: 16px; z-index: 75; width: 52px; height: 52px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 1.3rem; box-shadow: var(--shadow-l); }
   .panels, .form-grid { grid-template-columns: minmax(0, 1fr); }
+  .inbox { grid-template-columns: minmax(0, 1fr); height: calc(100vh - 210px); }
+  .inbox.has-active .inbox__list, .inbox:not(.has-active) .inbox__thread { display: none; }
+  .thread__back { display: inline; }
+  .msg { max-width: 86%; }
   .search { min-width: 0; flex: 1; }
   .page__actions { width: 100%; }
   .page__actions .abtn { flex: 1; }

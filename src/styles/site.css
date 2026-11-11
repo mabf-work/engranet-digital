@@ -283,6 +283,33 @@ main, .footer { position: relative; z-index: 1; }
 .config__done p { color: var(--ink-2); max-width: 40ch; }
 .config__check { display: grid; place-items: center; width: 74px; height: 74px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 2rem; animation: pop 0.6s var(--ease); box-shadow: 0 16px 30px -12px rgba(24, 119, 210, 0.7); }
 
+/* Chat en vivo */
+.fields__note { font-size: 0.88rem; color: var(--ink-3); margin: 0; }
+.chat { display: flex; flex-direction: column; height: min(560px, 72vh); }
+.chat__head { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.chat__head strong { display: block; font-family: var(--display); font-weight: 600; font-size: 1rem; }
+.chat__head small { display: flex; align-items: center; gap: 7px; color: var(--ink-2); font-size: 0.88rem; }
+.chat__avatar { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-s); flex: none; }
+.chat__dot { width: 9px; height: 9px; border-radius: 50%; background: #1fb866; box-shadow: 0 0 0 0 rgba(31, 184, 102, 0.6); animation: pulse 2s infinite; }
+.chat__body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 18px 4px 12px; overscroll-behavior: contain; }
+.bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 0.97rem; line-height: 1.45; animation: bubble-in 0.35s var(--ease); }
+.bubble p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.bubble time { display: block; margin-top: 3px; font-size: 0.72rem; opacity: 0.65; }
+.bubble--agent { align-self: flex-start; background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 6px; box-shadow: var(--shadow-s); }
+.bubble--client { align-self: flex-end; background: var(--blue-l); color: var(--blue-ink); border-bottom-right-radius: 6px; }
+.bubble--client time { text-align: right; }
+.bubble.is-pending { opacity: 0.6; }
+.chat__form { display: flex; align-items: flex-end; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.chat__form textarea { flex: 1; min-height: 48px; max-height: 120px; padding: 12px 16px; border-radius: 24px; border: 1.5px solid var(--line); background: #fff; resize: none; line-height: 1.4; transition: border-color 0.2s, box-shadow 0.2s; }
+.chat__form textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(24, 119, 210, 0.14); }
+.chat__send { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; flex: none; background: var(--blue-l); color: var(--blue-ink); font-size: 1.15rem; box-shadow: 0 10px 20px -10px rgba(24, 119, 210, 0.7); transition: transform 0.2s var(--ease), background 0.2s, opacity 0.2s; }
+.chat__send:hover:not(:disabled) { transform: scale(1.08) rotate(-8deg); background: var(--blue-l2); }
+.chat__send:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
+.chat__foot { margin-top: 10px; font-size: 0.8rem; color: var(--ink-3); }
+.chat__foot button { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.chat-fab { position: fixed; right: 20px; bottom: 92px; z-index: 40; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 600; font-size: 0.92rem; box-shadow: var(--shadow-l); animation: pop 0.4s var(--ease); }
+.chat-fab.has-new { background: var(--red); animation: pop 0.4s var(--ease), bob 1.6s ease-in-out 0.4s infinite; }
+
 /* Testimonios */
 .quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
 .quote { padding: 28px; border-radius: var(--r-l); background: #fff; box-shadow: var(--shadow-s); }
@@ -326,6 +353,8 @@ main, .footer { position: relative; z-index: 1; }
 @keyframes marquee { to { transform: translateX(calc(-50% - 9px)); } }
 @keyframes pop { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: none; } }
 @keyframes step-in { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(31, 184, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(31, 184, 102, 0); } }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes grow { from { transform: scaleY(0.15); } to { transform: none; } }
 
 /* Adaptación a pantallas */
