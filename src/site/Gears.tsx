@@ -30,18 +30,18 @@ export function gearPath(teeth: number, toothH = 20, hole = 0.3, module = 14, ho
 const MOD = 13, TOOTH = 21, VIEW = 720, DEPTH = 9;
 const A = 24, B = 14, C = 12;
 
-type Metal = { face: string[]; side: [string, string]; hub: [string, string] };
+type Metal = { face: string[]; side: [string, string]; hub: [string, string]; etch: string };
 const STEEL: Metal = {
   face: ['#f6f8fa', '#98a2ad', '#e8ecf0', '#7c8793', '#fafbfc', '#a2abb6', '#dde3e8', '#84909c', '#f6f8fa'],
-  side: ['#6d7781', '#3c444d'], hub: ['#ffffff', '#aab3bd'],
+  side: ['#6d7781', '#3c444d'], hub: ['#ffffff', '#aab3bd'], etch: 'rgba(22, 30, 40, 0.78)',
 };
 const BLUE: Metal = {
   face: ['#e3f3ff', '#6faedf', '#cde8ff', '#4f93cb', '#eef8ff', '#7bb8e6', '#c3e2fb', '#5a9bd0', '#e3f3ff'],
-  side: ['#3f7fb5', '#1f4f7c'], hub: ['#f4faff', '#86bfe9'],
+  side: ['#3f7fb5', '#1f4f7c'], hub: ['#f4faff', '#86bfe9'], etch: 'rgba(12, 48, 84, 0.8)',
 };
 const RED: Metal = {
   face: ['#ffe1e1', '#e87c82', '#ffcfcf', '#d5626a', '#ffecec', '#ec8a90', '#ffc6c8', '#da6b72', '#ffe1e1'],
-  side: ['#b84a52', '#7c2a31'], hub: ['#fff5f5', '#f09aa0'],
+  side: ['#b84a52', '#7c2a31'], hub: ['#fff5f5', '#f09aa0'], etch: 'rgba(104, 24, 34, 0.8)',
 };
 
 type Spec = { teeth: number; x: number; y: number; phi: number; k: number; metal: Metal; holes: number; label: string };
@@ -52,8 +52,8 @@ function buildTrain(): Spec[] {
   const ax = -20, ay = 0, thB = -45, thC = 135;
   const dB = pitch(A) + pitch(B), dC = pitch(A) + pitch(C);
   return [
-    { teeth: A, x: ax, y: ay, phi: 0, k: 1, metal: STEEL, holes: 6, label: 'Desarrollo' },
-    { teeth: B, x: ax + dB * Math.cos(rad(thB)), y: ay + dB * Math.sin(rad(thB)), phi: thB + 180 - 180 / B, k: -A / B, metal: BLUE, holes: 5, label: 'Publicidad' },
+    { teeth: A, x: ax, y: ay, phi: 0, k: 1, metal: STEEL, holes: 0, label: 'Desarrollo' },
+    { teeth: B, x: ax + dB * Math.cos(rad(thB)), y: ay + dB * Math.sin(rad(thB)), phi: thB + 180 - 180 / B, k: -A / B, metal: BLUE, holes: 0, label: 'Publicidad' },
     { teeth: C, x: ax + dC * Math.cos(rad(thC)), y: ay + dC * Math.sin(rad(thC)), phi: thC + 180 - 180 / C, k: -A / C, metal: RED, holes: 0, label: 'Diseño' },
   ];
 }
@@ -65,7 +65,6 @@ function buildTrain(): Spec[] {
 export default function Gears() {
   const wrap = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const labels = useMemo(buildTrain, []);
 
   useEffect(() => {
     const el = wrap.current, canvas = canvasRef.current;
@@ -164,6 +163,31 @@ export default function Gears() {
       ctx.lineJoin = 'round';
       ctx.stroke(path);
       ctx.restore();
+
+      // nombre grabado en la cara, como un marcado láser: gira con la pieza
+      const text = `${g.label} • ${g.label} • `.toUpperCase();
+      const tr = g.R * 0.64;
+      const size = Math.min(g.R * 0.2, (Math.PI * 2 * tr) / (text.length * 0.86));
+      ctx.font = `600 ${size.toFixed(1)}px Unbounded, 'Trebuchet MS', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const widths = Array.from(text).map((ch) => ctx.measureText(ch).width + size * 0.08);
+      const total = widths.reduce((a, b) => a + b, 0);
+      let at = rot;
+      Array.from(text).forEach((ch, i) => {
+        const step = (widths[i] / total) * Math.PI * 2;
+        const th = at + step / 2;
+        at += step;
+        ctx.save();
+        ctx.rotate(th);
+        ctx.translate(0, -tr);
+        // labio inferior iluminado (la luz no gira) y luego el surco oscuro
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.fillText(ch, Math.sin(th) * 1.3, Math.cos(th) * 1.3);
+        ctx.fillStyle = g.metal.etch;
+        ctx.fillText(ch, 0, 0);
+        ctx.restore();
+      });
 
       // cubo central, eje y chaveta
       const hubR = g.R * 0.34;
@@ -295,16 +319,6 @@ export default function Gears() {
   return (
     <div className="gears" ref={wrap} role="img" aria-label="Tres engranajes de metal que giran encajados: Desarrollo, Publicidad y Diseño. Se pueden arrastrar para girarlos">
       <canvas ref={canvasRef} />
-      {labels.map((g) => (
-        <span
-          key={g.label}
-          className="gears__label"
-          aria-hidden="true"
-          style={{ left: `${50 + (g.x / VIEW) * 100}%`, top: `${50 + (g.y / (VIEW * 0.92)) * 100}%` }}
-        >
-          {g.label}
-        </span>
-      ))}
       <span className="gears__hint" aria-hidden="true">Arrástralos para girarlos</span>
     </div>
   );
