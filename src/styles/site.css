@@ -133,7 +133,7 @@ main, .footer { position: relative; z-index: 1; }
 }
 .float-tag svg { color: var(--primary); }
 .float-tag--a { left: 6%; top: 10%; }
-.float-tag--b { right: 4%; top: 6%; animation-delay: -1.4s; }
+.float-tag--b { right: 0; bottom: 16%; animation-delay: -1.4s; }
 .float-tag--b svg { color: var(--red); }
 .float-tag--c { right: 0; bottom: 14%; animation-delay: -2.6s; }
 .float-tag--c svg { color: var(--red); }
@@ -146,6 +146,7 @@ main, .footer { position: relative; z-index: 1; }
 .gears canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .gears__hint { position: absolute; left: 50%; bottom: 0; translate: -50% 0; padding: 7px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; color: var(--ink-2); background: rgba(255, 255, 255, 0.85); border: 1px solid #fff; box-shadow: var(--shadow-s); pointer-events: none; white-space: nowrap; transition: opacity 0.5s; }
 .gears.is-touched .gears__hint { opacity: 0; }
+.gears__label { position: absolute; translate: -50% -50%; padding: 0.45em 0.9em; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: clamp(0.62rem, 1.15vw, 0.95rem); letter-spacing: -0.01em; color: var(--ink); background: rgba(255, 255, 255, 0.92); border: 1px solid #fff; box-shadow: 0 6px 16px -6px rgba(15, 36, 64, 0.45); pointer-events: none; white-space: nowrap; }
 .float-tag { pointer-events: none; }
 
 /* Clientes */

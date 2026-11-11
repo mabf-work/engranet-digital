@@ -28,7 +28,7 @@ export function gearPath(teeth: number, toothH = 20, hole = 0.3, module = 14, ho
 // Tres engranajes de metal vistos de frente. Todos comparten módulo para que
 // los dientes encajen; B y C engranan con A sobre uno de sus dientes.
 const MOD = 13, TOOTH = 21, VIEW = 720, DEPTH = 9;
-const A = 24, B = 14, C = 10;
+const A = 24, B = 14, C = 12;
 
 type Metal = { face: string[]; side: [string, string]; hub: [string, string] };
 const STEEL: Metal = {
@@ -44,7 +44,7 @@ const RED: Metal = {
   side: ['#b84a52', '#7c2a31'], hub: ['#fff5f5', '#f09aa0'],
 };
 
-type Spec = { teeth: number; x: number; y: number; phi: number; k: number; metal: Metal; holes: number };
+type Spec = { teeth: number; x: number; y: number; phi: number; k: number; metal: Metal; holes: number; label: string };
 const rad = (deg: number) => (deg * Math.PI) / 180;
 const pitch = (n: number) => (n * MOD) / 2;
 
@@ -52,9 +52,9 @@ function buildTrain(): Spec[] {
   const ax = -20, ay = 0, thB = -45, thC = 135;
   const dB = pitch(A) + pitch(B), dC = pitch(A) + pitch(C);
   return [
-    { teeth: A, x: ax, y: ay, phi: 0, k: 1, metal: STEEL, holes: 6 },
-    { teeth: B, x: ax + dB * Math.cos(rad(thB)), y: ay + dB * Math.sin(rad(thB)), phi: thB + 180 - 180 / B, k: -A / B, metal: BLUE, holes: 5 },
-    { teeth: C, x: ax + dC * Math.cos(rad(thC)), y: ay + dC * Math.sin(rad(thC)), phi: thC + 180 - 180 / C, k: -A / C, metal: RED, holes: 0 },
+    { teeth: A, x: ax, y: ay, phi: 0, k: 1, metal: STEEL, holes: 6, label: 'Desarrollo' },
+    { teeth: B, x: ax + dB * Math.cos(rad(thB)), y: ay + dB * Math.sin(rad(thB)), phi: thB + 180 - 180 / B, k: -A / B, metal: BLUE, holes: 5, label: 'Publicidad' },
+    { teeth: C, x: ax + dC * Math.cos(rad(thC)), y: ay + dC * Math.sin(rad(thC)), phi: thC + 180 - 180 / C, k: -A / C, metal: RED, holes: 0, label: 'Diseño' },
   ];
 }
 
@@ -65,6 +65,7 @@ function buildTrain(): Spec[] {
 export default function Gears() {
   const wrap = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const labels = useMemo(buildTrain, []);
 
   useEffect(() => {
     const el = wrap.current, canvas = canvasRef.current;
@@ -292,8 +293,18 @@ export default function Gears() {
   }, []);
 
   return (
-    <div className="gears" ref={wrap} role="img" aria-label="Tres engranajes de metal que giran encajados; se pueden arrastrar para girarlos">
+    <div className="gears" ref={wrap} role="img" aria-label="Tres engranajes de metal que giran encajados: Desarrollo, Publicidad y Diseño. Se pueden arrastrar para girarlos">
       <canvas ref={canvasRef} />
+      {labels.map((g) => (
+        <span
+          key={g.label}
+          className="gears__label"
+          aria-hidden="true"
+          style={{ left: `${50 + (g.x / VIEW) * 100}%`, top: `${50 + (g.y / (VIEW * 0.92)) * 100}%` }}
+        >
+          {g.label}
+        </span>
+      ))}
       <span className="gears__hint" aria-hidden="true">Arrástralos para girarlos</span>
     </div>
   );

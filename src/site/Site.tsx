@@ -98,7 +98,6 @@ function Hero({ settings }: any) {
           <Gears />
           <span className="float-tag float-tag--a"><Icon name="monitor" /> Páginas web</span>
           <span className="float-tag float-tag--b"><Icon name="message" /> WhatsApp</span>
-          <span className="float-tag float-tag--c"><Icon name="trending" /> Publicidad</span>
           <span className="float-tag float-tag--d"><Icon name="cpu" /> Software</span>
         </div>
       </div>
