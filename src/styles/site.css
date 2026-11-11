@@ -130,23 +130,33 @@ main, .footer { position: relative; z-index: 1; }
 .float-tag--d { left: 10%; bottom: 6%; animation-delay: -3.5s; }
 .float-tag--d svg { color: #0098a6; }
 
-/* Engranajes 3D */
-.gears { position: relative; width: 100%; aspect-ratio: 1 / 0.92; perspective: 1500px; --mx: 0; --my: 0; --s: 1; }
-.gears__stage { position: absolute; inset: 0; transform-style: preserve-3d; transform: scale(var(--s)) rotateX(calc(55deg - var(--my) * 16deg)) rotateZ(calc(-24deg + var(--mx) * 22deg)); }
-.gears__plane { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; transform: translate(-70px, 0); }
-.gears__floor { position: absolute; left: 50%; top: 50%; width: 900px; height: 900px; translate: -50% -50%; border-radius: 50%; transform: translateZ(-30px); background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.55) 45%, transparent 70%), repeating-radial-gradient(circle, transparent 0 58px, rgba(74, 58, 255, 0.1) 58px 59px); }
-.gears__orbit { position: absolute; left: 50%; top: 50%; width: 760px; height: 760px; translate: -50% -50%; border-radius: 50%; border: 2px dashed rgba(74, 58, 255, 0.28); transform: translateZ(-28px); animation: spin-plain 60s linear infinite; }
-.gear { position: absolute; translate: -50% -50%; transform-style: preserve-3d; animation: spin linear infinite; --phi: 0deg; }
-.gear svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+/* Engranaje planetario 3D (se arrastra para girarlo) */
+.gears { position: relative; width: 100%; aspect-ratio: 1 / 0.92; perspective: 1500px; --mx: 0; --my: 0; --s: 1; --a: 0deg; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.gears.is-grabbing { cursor: grabbing; }
+.gears__stage { position: absolute; inset: 0; transform-style: preserve-3d; transform: scale(var(--s)) rotateX(calc(50deg - var(--my) * 18deg)) rotateZ(calc(-16deg + var(--mx) * 24deg)); }
+.gears__plane { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+.gears__floor { position: absolute; left: 50%; top: 50%; width: 900px; height: 900px; translate: -50% -50%; border-radius: 50%; transform: translateZ(-30px); background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.5) 45%, transparent 70%), repeating-radial-gradient(circle, transparent 0 58px, rgba(74, 58, 255, 0.1) 58px 59px); }
+.gears__halo { position: absolute; left: 50%; top: 50%; width: 640px; height: 640px; translate: -50% -50%; border-radius: 50%; transform: translateZ(-26px); background: conic-gradient(from 0deg, rgba(255, 79, 163, 0.5), rgba(255, 210, 74, 0.45), rgba(53, 224, 161, 0.45), rgba(76, 195, 255, 0.5), rgba(255, 79, 163, 0.5)); filter: blur(46px); opacity: 0.75; transition: opacity 0.4s; }
+.gears.is-grabbing .gears__halo { opacity: 1; }
+.gear { position: absolute; translate: -50% -50% var(--lift, 0px); transition: translate 0.4s var(--ease); transform-style: preserve-3d; transform: rotate(calc(var(--phi) + var(--a) * var(--k))); --phi: 0deg; --k: 1; }
+.gear svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.gear svg path { pointer-events: auto; }
+.gear--sun:hover, .gear--planet:hover { --lift: 30px; }
 .gear__side path { fill: var(--side); }
-.gear__face path { fill: var(--face); stroke: var(--edge); stroke-width: 2.5; stroke-linejoin: round; }
-.gear__ring { fill: none; stroke: var(--edge); stroke-width: 2; opacity: 0.75; }
-.gear__shadow path { fill: rgba(52, 40, 190, 0.3); }
-.gear__shadow { filter: blur(16px); }
-.gear--pearl { --face: #ffffff; --side: #b9b4f5; --edge: #d9d5ff; }
-.gear--violet { --face: #5b4bff; --side: #2c1fb8; --edge: #9d93ff; }
-.gear--cyan { --face: #1fd4e0; --side: #0890a0; --edge: #a5f3f8; }
-.gear--amber { --face: #ffc24a; --side: #d98a00; --edge: #ffe3a8; }
+.gear__face path { stroke: rgba(255, 255, 255, 0.6); stroke-width: 2; stroke-linejoin: round; }
+.gear__detail { fill: none; stroke: rgba(255, 255, 255, 0.55); stroke-width: 2; pointer-events: none; }
+.gear__detail--dash { stroke-dasharray: 2 10; stroke-linecap: round; stroke-width: 3; }
+.gear__shadow path { fill: rgba(20, 20, 80, 0.3); pointer-events: none !important; }
+.gear__shadow { filter: blur(14px); }
+.gear--ink { --side: #07071f; }
+.gear--core { --side: #c2305f; }
+.gear--coral { --side: #c22f55; }
+.gear--mint { --side: #0b8a88; }
+.gear--sky { --side: #3636c2; }
+.gear--gold { --side: #c97a00; }
+.gears__hint { position: absolute; left: 50%; bottom: -4px; translate: -50% 0; padding: 7px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; color: var(--ink-2); background: rgba(255, 255, 255, 0.8); border: 1px solid #fff; box-shadow: var(--shadow-s); pointer-events: none; white-space: nowrap; transition: opacity 0.5s; animation: bob 3s ease-in-out infinite; }
+.gears.is-touched .gears__hint { opacity: 0; }
+.float-tag { pointer-events: none; }
 
 /* Clientes */
 .brands { padding: 34px 0 20px; }
@@ -363,6 +373,5 @@ main, .footer { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-  .gear { animation: none; transform: rotate(var(--phi)); }
   .hero__word { opacity: 1; }
 }
